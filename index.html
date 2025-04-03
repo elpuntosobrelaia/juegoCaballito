@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Juego del Caballito Saltador</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #87CEEB;
+      font-family: Arial, sans-serif;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      overflow: hidden;
+      background-color: #87CEEB;
+    }
+    #ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 80px;
+      background-color: #8B4513;
+      z-index: 1;
+    }
+    #grass {
+      position: absolute;
+      bottom: 80px;
+      width: 100%;
+      height: 20px;
+      background-color: #228B22;
+      z-index: 1;
+    }
+    #horse {
+      position: absolute;
+      width: 100px;
+      height: 80px;
+      bottom: 100px;
+      left: 50px;
+      z-index: 3;
+    }
+    .hurdle {
+      position: absolute;
+      bottom: 100px;
+      width: 20px;
+      background-color: #8B4513;
+      z-index: 2;
+    }
+    .hurdle:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 10px;
+      background-color: #A52A2A;
+    }
+    #score-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #jump-hint {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+    #start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #start-screen h1 {
+      color: white;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    #start-button {
+      padding: 10px 20px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #start-button:hover {
+      background-color: #45a049;
+    }
+    #game-over {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #game-over h1 {
+      color: white;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    #final-score {
+      color: white;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #restart-button {
+      padding: 10px 20px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #restart-button:hover {
+      background-color: #45a049;
+    }
+    #instructions {
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="ground"></div>
+    <div id="grass"></div>
+    <div id="horse">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" width="100" height="80">
+        <!-- Cuerpo del caballo (marrón claro) -->
+        <ellipse cx="50" cy="45" rx="36" ry="20" fill="#D2B48C" />
+        
+        <!-- Cuello y cabeza -->
+        <path d="M75 40 Q85 25 80 15 Q75 10 70 15 Q68 20 65 30" fill="#C19A6B" />
+        
+        <!-- Cabeza -->
+        <ellipse cx="80" cy="12" rx="10" ry="7" fill="#D2B48C" />
+        
+        <!-- Ojo -->
+        <circle cx="83" cy="10" r="1.5" fill="#000" />
+        
+        <!-- Orejas -->
+        <path d="M76 8 L72 3 L75 7 Z" fill="#A0522D" />
+        <path d="M83 6 L86 1 L87 6 Z" fill="#A0522D" />
+        
+        <!-- Hocico -->
+        <path d="M87 12 Q92 14 89 19 Q84 18 85 14 Z" fill="#C19A6B" />
+        
+        <!-- Crin -->
+        <path d="M70 16 Q65 12 60 18 Q55 10 50 16 Q45 10 40 16 Q35 12 30 18" stroke="#8B4513" stroke-width="2" fill="none" />
+        
+        <!-- Cola -->
+        <path d="M14 40 Q5 30 8 20 Q10 15 15 25 Q18 30 14 40 Z" fill="#8B4513" />
+        
+        <!-- Patas delanteras -->
+        <rect x="30" y="45" width="6" height="30" fill="#A0522D" />
+        <rect x="65" y="45" width="6" height="30" fill="#A0522D" />
+        
+        <!-- Patas traseras -->
+        <rect x="20" y="45" width="6" height="30" fill="#A0522D" />
+        <rect x="75" y="45" width="6" height="30" fill="#A0522D" />
+        
+        <!-- Pezuñas -->
+        <rect x="30" y="72" width="6" height="3" rx="1" fill="#333" />
+        <rect x="65" y="72" width="6" height="3" rx="1" fill="#333" />
+        <rect x="20" y="72" width="6" height="3" rx="1" fill="#333" />
+        <rect x="75" y="72" width="6" height="3" rx="1" fill="#333" />
+      </svg>
+    </div>
+    <div id="score-container">Puntos: <span id="score">0</span></div>
+    <div id="jump-hint">¡Salta ahora! [ESPACIO]</div>
+    
+    <div id="start-screen">
+      <h1>Caballito Saltador</h1>
+      <button id="start-button">¡Jugar!</button>
+      <div id="instructions">
+        Presiona ESPACIO para saltar las vallas.<br>
+        ¡Salta en el momento adecuado para superar las vallas!<br>
+        ¡Gana puntos y aumenta la velocidad!
+      </div>
+    </div>
+    
+    <div id="game-over">
+      <h1>¡Juego Terminado!</h1>
+      <div id="final-score">Puntuación: 0</div>
+      <button id="restart-button">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <script>
+    // Variables del juego
+    let gameStarted = false;
+    let gameSpeed = 4; // Velocidad inicial reducida
+    let score = 0;
+    let jumping = false;
+    let hurdleInterval;
+    let speedIncreaseThreshold = 5;  // Aumentar velocidad cada 5 puntos
+    let gameOver = false;
+    
+    // Elementos DOM
+    const horse = document.getElementById('horse');
+    const gameContainer = document.getElementById('game-container');
+    const scoreElement = document.getElementById('score');
+    const startScreen = document.getElementById('start-screen');
+    const startButton = document.getElementById('start-button');
+    const gameOverScreen = document.getElementById('game-over');
+    const finalScoreElement = document.getElementById('final-score');
+    const restartButton = document.getElementById('restart-button');
+    const jumpHint = document.getElementById('jump-hint');
+    
+    // Configuración física del salto
+    let horseBottom = 100;
+    let horseGravity = 0.8; // Gravedad reducida
+    let horseJumpForce = 18; // Fuerza de salto aumentada
+    let horseVelocity = 0;
+    let isJumping = false;
+    
+    // Variables para la animación de galope
+    let galloping = false;
+    let gallopFrame = 0;
+    let gallopInterval;
+    
+    // Botón para iniciar el juego
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', restartGame);
+    
+    // Controles
+    document.addEventListener('keydown', function(event) {
+      if (event.code === 'Space' && gameStarted && !isJumping) {
+        jump();
+        jumpHint.style.display = 'none'; // Ocultar la pista después de saltar
+        event.preventDefault();
+      }
+    });
+    
+    // Función para iniciar el juego
+    function startGame() {
+      startScreen.style.display = 'none';
+      gameStarted = true;
+      gameSpeed = 4; // Velocidad inicial reducida
+      score = 0;
+      scoreElement.textContent = score;
+      
+      // Dar tiempo antes de la primera valla
+      setTimeout(() => {
+        // Mostrar la primera valla con más tiempo
+        createFirstHurdle();
+        
+        // Generar vallas regulares después de la primera
+        hurdleInterval = setInterval(createHurdle, 2500); // Intervalo aumentado
+      }, 2000); // Tiempo de preparación
+      
+      // Inicia la animación de galope
+      startGalloping();
+      
+      // Inicia el bucle del juego
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // Función para crear la primera valla (más fácil)
+    function createFirstHurdle() {
+      const hurdle = document.createElement('div');
+      hurdle.classList.add('hurdle');
+      gameContainer.appendChild(hurdle);
+      
+      // Primera valla más baja
+      const hurdleHeight = 30;
+      hurdle.style.height = hurdleHeight + 'px';
+      
+      // Posición inicial de la valla
+      hurdle.style.right = '0px';
+      
+      // Aviso para saltar
+      const gameWidth = gameContainer.offsetWidth;
+      const jumpPosition = gameWidth * 0.7; // Posición óptima para mostrar el aviso
+      let showedHint = false;
+      
+      // Movimiento de la valla
+      let hurdlePosition = 0;
+      let hurdleTimer = setInterval(() => {
+        if (gameOver) {
+          clearInterval(hurdleTimer);
+          return;
+        }
+        
+        // Mover la valla
+        hurdlePosition += gameSpeed;
+        hurdle.style.right = hurdlePosition + 'px';
+        
+        // Mostrar pista para saltar
+        const hurdleRight = parseInt(hurdle.style.right);
+        if (hurdleRight > jumpPosition && !showedHint) {
+          jumpHint.style.display = 'block';
+          showedHint = true;
+        }
+        
+        // Detectar colisión
+        if (isColliding(horse, hurdle)) {
+          endGame();
+          clearInterval(hurdleTimer);
+        }
+        
+        // Detectar si la valla ha sido saltada
+        const hurdleWidth = 20;
+        
+        // Si la valla ha pasado completamente al caballo sin colisión
+        if (hurdleRight > gameWidth - 50 - hurdleWidth && !hurdle.jumped) {
+          hurdle.jumped = true;
+          increaseScore();
+          jumpHint.style.display = 'none'; // Ocultar la pista después de saltar con éxito
+        }
+        
+        // Eliminar la valla cuando sale de la pantalla
+        if (hurdleRight > gameWidth + hurdleWidth) {
+          hurdle.remove();
+          clearInterval(hurdleTimer);
+        }
+      }, 20);
+    }
+    
+    // Función para reiniciar el juego
+    function restartGame() {
+      // Eliminar todas las vallas existentes
+      const hurdles = document.querySelectorAll('.hurdle');
+      hurdles.forEach(hurdle => hurdle.remove());
+      
+      // Restablecer posición del caballo
+      horse.style.bottom = '100px';
+      horseBottom = 100;
+      horseVelocity = 0;
+      isJumping = false;
+      
+      // Ocultar pantalla de Game Over
+      gameOverScreen.style.display = 'none';
+      gameOver = false;
+      
+      // Ocultar la pista de salto
+      jumpHint.style.display = 'none';
+      
+      // Iniciar juego de nuevo
+      startGame();
+    }
+    
+    // Animación de galope
+    function startGalloping() {
+      if (galloping) return;
+      
+      galloping = true;
+      gallopInterval = setInterval(() => {
+        if (!gameStarted || gameOver) {
+          clearInterval(gallopInterval);
+          galloping = false;
+          return;
+        }
+        
+        // Alternar entre dos frames para simular galope
+        gallopFrame = (gallopFrame + 1) % 2;
+        
+        // Obtener las patas para animarlas
+        const frontLegs = horse.querySelectorAll('rect');
+        
+        if (gallopFrame === 0) {
+          // Frame 1: Patas delanteras extendidas, traseras recogidas
+          frontLegs[0].setAttribute('y', '45');
+          frontLegs[1].setAttribute('y', '50');
+          frontLegs[2].setAttribute('y', '50');
+          frontLegs[3].setAttribute('y', '45');
+        } else {
+          // Frame 2: Patas delanteras recogidas, traseras extendidas
+          frontLegs[0].setAttribute('y', '50');
+          frontLegs[1].setAttribute('y', '45');
+          frontLegs[2].setAttribute('y', '45');
+          frontLegs[3].setAttribute('y', '50');
+        }
+      }, 150);
+    }
+    
+    // Función para el salto del caballo
+    function jump() {
+      if (!isJumping) {
+        isJumping = true;
+        horseVelocity = horseJumpForce;
+        
+        // Pausar la animación de galope durante el salto
+        clearInterval(gallopInterval);
+        galloping = false;
+        
+        // Poner todas las patas en posición recogida para el salto
+        const legs = horse.querySelectorAll('rect');
+        legs.forEach(leg => {
+          leg.setAttribute('y', '50');
+        });
+      }
+    }
+    
+    // Función para actualizar la posición del caballo
+    function updateHorse() {
+      horseVelocity -= horseGravity;
+      horseBottom += horseVelocity;
+      
+      // Limitar la posición del caballo
+      if (horseBottom <= 100) {
+        horseBottom = 100;
+        isJumping = false;
+        
+        // Reiniciar animación de galope al tocar el suelo
+        if (!galloping && gameStarted && !gameOver) {
+          startGalloping();
+        }
+      }
+      
+      horse.style.bottom = horseBottom + 'px';
+    }
+    
+    // Función para crear vallas
+    function createHurdle() {
+      if (!gameStarted || gameOver) return;
+      
+      const hurdle = document.createElement('div');
+      hurdle.classList.add('hurdle');
+      gameContainer.appendChild(hurdle);
+      
+      // Altura aleatoria de la valla (entre 30 y 70) - reducido para ser más fácil
+      const hurdleHeight = Math.floor(Math.random() * 40) + 30;
+      hurdle.style.height = hurdleHeight + 'px';
+      
+      // Posición inicial de la valla
+      hurdle.style.right = '0px';
+      
+      // Movimiento de la valla
+      let hurdlePosition = 0;
+      let hurdleTimer = setInterval(() => {
+        if (gameOver) {
+          clearInterval(hurdleTimer);
+          return;
+        }
+        
+        // Mover la valla
+        hurdlePosition += gameSpeed;
+        hurdle.style.right = hurdlePosition + 'px';
+        
+        // Detectar colisión
+        if (isColliding(horse, hurdle)) {
+          endGame();
+          clearInterval(hurdleTimer);
+        }
+        
+        // Detectar si la valla ha sido saltada
+        const hurdleRight = parseInt(hurdle.style.right);
+        const hurdleWidth = 20;
+        const gameWidth = gameContainer.offsetWidth;
+        
+        // Si la valla ha pasado completamente al caballo sin colisión
+        if (hurdleRight > gameWidth - 50 - hurdleWidth && !hurdle.jumped) {
+          hurdle.jumped = true;
+          increaseScore();
+        }
+        
+        // Eliminar la valla cuando sale de la pantalla
+        if (hurdleRight > gameWidth + hurdleWidth) {
+          hurdle.remove();
+          clearInterval(hurdleTimer);
+        }
+      }, 20);
+    }
+    
+    // Función para detectar colisiones
+    function isColliding(element1, element2) {
+      const rect1 = element1.getBoundingClientRect();
+      const rect2 = element2.getBoundingClientRect();
+      
+      // Reducir el área de colisión para hacer el juego más permisivo
+      const collisionMargin = 10;
+      return !(
+        rect1.right - collisionMargin < rect2.left + collisionMargin ||
+        rect1.left + collisionMargin > rect2.right - collisionMargin ||
+        rect1.bottom - collisionMargin < rect2.top + collisionMargin ||
+        rect1.top + collisionMargin > rect2.bottom - collisionMargin
+      );
+    }
+    
+    // Función para aumentar la puntuación
+    function increaseScore() {
+      score++;
+      scoreElement.textContent = score;
+      
+      // Aumentar la velocidad cada cierto número de puntos
+      if (score % speedIncreaseThreshold === 0 && score > 0) {
+        // Limitar la velocidad máxima para mantener la jugabilidad
+        if (gameSpeed < 12) {
+          gameSpeed += 1;
+        }
+      }
+    }
+    
+    // Función para terminar el juego
+    function endGame() {
+      gameOver = true;
+      gameStarted = false;
+      clearInterval(hurdleInterval);
+      clearInterval(gallopInterval);
+      galloping = false;
+      
+      // Mostrar pantalla de fin de juego
+      finalScoreElement.textContent = 'Puntuación: ' + score;
+      gameOverScreen.style.display = 'flex';
+    }
+    
+    // Bucle principal del juego
+    function gameLoop() {
+      if (!gameOver) {
+        updateHorse();
+        requestAnimationFrame(gameLoop);
+      }
+    }
+  </script>
+</body>
+</html>
