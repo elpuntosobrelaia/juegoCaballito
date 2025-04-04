@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Juego del Caballito Saltador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
       margin: 0;
@@ -97,6 +98,7 @@
       color: white;
       font-size: 36px;
       margin-bottom: 20px;
+      text-align: center;
     }
     #start-button {
       padding: 10px 20px;
@@ -127,6 +129,7 @@
       color: white;
       font-size: 36px;
       margin-bottom: 10px;
+      text-align: center;
     }
     #final-score {
       color: white;
@@ -150,6 +153,7 @@
       font-size: 18px;
       text-align: center;
       margin-top: 20px;
+      padding: 0 20px;
     }
   </style>
 </head>
@@ -200,13 +204,13 @@
       </svg>
     </div>
     <div id="score-container">Puntos: <span id="score">0</span></div>
-    <div id="jump-hint">¡Salta ahora! [ESPACIO]</div>
+    <div id="jump-hint">¡Toca para saltar!</div>
     
     <div id="start-screen">
       <h1>Caballito Saltador</h1>
       <button id="start-button">¡Jugar!</button>
       <div id="instructions">
-        Presiona ESPACIO para saltar las vallas.<br>
+        Toca la pantalla para hacer que el caballo salte.<br>
         ¡Salta en el momento adecuado para superar las vallas!<br>
         ¡Gana puntos y aumenta la velocidad!
       </div>
@@ -256,14 +260,26 @@
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
     
-    // Controles
-    document.addEventListener('keydown', function(event) {
-      if (event.code === 'Space' && gameStarted && !isJumping) {
+    // Controles de salto - Toque y Clic
+    function setupJumpControls() {
+      // Evento clic del ratón
+      gameContainer.addEventListener('click', handleJump);
+      
+      // Eventos táctiles para dispositivos móviles
+      gameContainer.addEventListener('touchstart', handleJump);
+    }
+    
+    // Función para manejar el salto
+    function handleJump(event) {
+      // Prevenir comportamiento por defecto para evitar problemas en móviles
+      event.preventDefault();
+      
+      // Saltar sólo si el juego está iniciado y el caballo no está saltando
+      if (gameStarted && !isJumping && !gameOver) {
         jump();
         jumpHint.style.display = 'none'; // Ocultar la pista después de saltar
-        event.preventDefault();
       }
-    });
+    }
     
     // Función para iniciar el juego
     function startGame() {
@@ -272,6 +288,9 @@
       gameSpeed = 4; // Velocidad inicial reducida
       score = 0;
       scoreElement.textContent = score;
+      
+      // Configurar controles de salto
+      setupJumpControls();
       
       // Dar tiempo antes de la primera valla
       setTimeout(() => {
